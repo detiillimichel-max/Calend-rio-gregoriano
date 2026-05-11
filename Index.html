@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0a0a14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>OIO Calendar</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ════════════════════ AUTH SCREEN ════════════════════ -->
+  <div id="auth-screen" class="screen">
+    <div class="auth-bg"></div>
+    <div class="auth-card glass">
+      <div class="auth-logo">
+        <div class="auth-icon">🗓</div>
+        <h1>OIO Calendar</h1>
+        <p>Calendário compartilhado para família e equipe</p>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Entrar</button>
+        <button class="auth-tab" data-tab="register">Cadastrar</button>
+      </div>
+      <!-- Login -->
+      <div id="tab-login" class="auth-form">
+        <input type="email" id="login-email" class="input" placeholder="E-mail" autocomplete="email" />
+        <input type="password" id="login-password" class="input" placeholder="Senha" autocomplete="current-password" />
+        <button id="btn-login" class="btn btn-primary w-full">Entrar</button>
+        <div class="divider"><span>ou</span></div>
+        <button id="btn-google" class="btn btn-google w-full">
+          <svg width="18" height="18" viewBox="0 0 48 48">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Entrar com Google
+        </button>
+      </div>
+      <!-- Register -->
+      <div id="tab-register" class="auth-form hidden">
+        <input type="text" id="reg-name" class="input" placeholder="Seu nome completo" />
+        <input type="email" id="reg-email" class="input" placeholder="E-mail" autocomplete="email" />
+        <input type="password" id="reg-password" class="input" placeholder="Senha (mín. 6 caracteres)" autocomplete="new-password" />
+        <button id="btn-register" class="btn btn-primary w-full">Criar conta</button>
+      </div>
+      <p id="auth-error" class="auth-error"></p>
+    </div>
+  </div>
+
+  <!-- ════════════════════ APP SCREEN ════════════════════ -->
+  <div id="app-screen" class="screen hidden">
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-user">
+        <div class="avatar-circle" id="sb-avatar">U</div>
+        <div class="sidebar-user-info">
+          <p id="sb-name" class="sb-name">Usuário</p>
+          <p id="sb-email" class="sb-email">—</p>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-view="month">
+          <span class="nav-icon">📅</span> Mês
+        </button>
+        <button class="nav-item" data-view="upcoming">
+          <span class="nav-icon">⏰</span> Próximos
+        </button>
+        <button class="nav-item" data-view="invitations">
+          <span class="nav-icon">📨</span> Convites
+          <span id="invite-count" class="nav-badge hidden">0</span>
+        </button>
+      </nav>
+      <div class="sidebar-cats">
+        <p class="cats-title">Categorias</p>
+        <div class="cat-row"><span class="cat-dot" style="background:#00e5ff"></span>Pessoal</div>
+        <div class="cat-row"><span class="cat-dot" style="background:#ff6b35"></span>Trabalho</div>
+        <div class="cat-row"><span class="cat-dot" style="background:#a855f7"></span>Família</div>
+        <div class="cat-row"><span class="cat-dot" style="background:#10b981"></span>Saúde</div>
+        <div class="cat-row"><span class="cat-dot" style="background:#f59e0b"></span>Social</div>
+      </div>
+      <button id="btn-logout" class="btn-logout">↪ Sair</button>
+    </aside>
+
+    <!-- Header -->
+    <header class="app-header">
+      <button id="btn-menu" class="icon-btn" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="header-nav">
+        <button id="btn-prev-month" class="nav-arrow">‹</button>
+        <h2 id="month-label">—</h2>
+        <button id="btn-next-month" class="nav-arrow">›</button>
+      </div>
+      <div class="header-actions">
+        <button id="btn-today" class="btn btn-ghost btn-sm">Hoje</button>
+        <button id="btn-new-event" class="btn btn-primary btn-sm">+ Evento</button>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main id="main">
+
+      <!-- Month View -->
+      <div id="view-month" class="view">
+        <div id="cal-grid" class="cal-grid">
+          <div class="cal-header">Dom</div>
+          <div class="cal-header">Seg</div>
+          <div class="cal-header">Ter</div>
+          <div class="cal-header">Qua</div>
+          <div class="cal-header">Qui</div>
+          <div class="cal-header">Sex</div>
+          <div class="cal-header">Sáb</div>
+        </div>
+      </div>
+
+      <!-- Upcoming View -->
+      <div id="view-upcoming" class="view hidden">
+        <div class="view-header"><h3>Próximos Eventos</h3></div>
+        <div id="upcoming-list" class="event-list"></div>
+      </div>
+
+      <!-- Invitations View -->
+      <div id="view-invitations" class="view hidden">
+        <div class="view-header"><h3>Convites</h3></div>
+        <div id="invitations-list" class="event-list"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ════════════════════ EVENT MODAL ════════════════════ -->
+  <div id="event-modal" class="modal-overlay hidden">
+    <div class="modal-card glass">
+      <div class="modal-header">
+        <h3 id="modal-heading">Novo Evento</h3>
+        <button id="btn-close-modal" class="icon-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="evt-title" class="input" placeholder="Título do evento *" />
+        <textarea id="evt-desc" class="input textarea" placeholder="Descrição (opcional)" rows="2"></textarea>
+        <div class="two-col">
+          <div class="field-group">
+            <label class="field-label">Início</label>
+            <input type="datetime-local" id="evt-start" class="input" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Fim</label>
+            <input type="datetime-local" id="evt-end" class="input" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Categoria</label>
+          <div class="color-picker" id="color-picker">
+            <button class="cp-btn active" data-color="#00e5ff" data-cat="Pessoal" style="--c:#00e5ff" title="Pessoal"></button>
+            <button class="cp-btn" data-color="#ff6b35" data-cat="Trabalho" style="--c:#ff6b35" title="Trabalho"></button>
+            <button class="cp-btn" data-color="#a855f7" data-cat="Família" style="--c:#a855f7" title="Família"></button>
+            <button class="cp-btn" data-color="#10b981" data-cat="Saúde" style="--c:#10b981" title="Saúde"></button>
+            <button class="cp-btn" data-color="#f59e0b" data-cat="Social" style="--c:#f59e0b" title="Social"></button>
+          </div>
+          <span id="cat-label" class="cat-label-text">Pessoal</span>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Lembrete</label>
+          <select id="evt-reminder" class="input select">
+            <option value="0">Sem lembrete</option>
+            <option value="15">15 minutos antes</option>
+            <option value="30">30 minutos antes</option>
+            <option value="60">1 hora antes</option>
+            <option value="1440">1 dia antes</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Convidar usuário (e-mail cadastrado)</label>
+          <div class="invite-row">
+            <input type="email" id="invite-email-input" class="input" placeholder="email@exemplo.com" />
+            <button id="btn-add-invitee" class="btn btn-ghost btn-sm">Adicionar</button>
+          </div>
+          <div id="invitees-chips" class="chips-list"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-delete-event" class="btn btn-danger hidden">🗑 Deletar</button>
+        <div class="modal-footer-right">
+          <button id="btn-cancel-modal" class="btn btn-ghost">Cancelar</button>
+          <button id="btn-save-event" class="btn btn-primary">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Firebase SDKs (compat v10) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
